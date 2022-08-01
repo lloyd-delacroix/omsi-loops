@@ -623,7 +623,7 @@
         <spatiomancy>
             <label>Spatiomancy</label>
             <desc>Who knew bending reality to your will could be so useful!</desc>
-            <desc2><![CDATA[Mana Geyser and Mana Well are reduced to the original / (1 + level / 100) (rounded up).<br>
+            <desc2><![CDATA[Mana Geyser and Mana Well costs are reduced to the original / (1 + level / 100) (rounded up).<br>
             Houses to check for valuables is increased by 0.5% per level from 1-200 (rounded down).<br>
             Short quests to finish is increased by 0.5% per level from 101-300 (rounded down).<br>
             Long quests to finish is increased by 0.5% per level from 201-400 (rounded down).<br>
