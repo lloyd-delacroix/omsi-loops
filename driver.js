@@ -501,11 +501,15 @@ function handleDragStart(event) {
 }
 
 function handleDirectActionDragStart(event, actionName, townNum, actionVarName, isTravelAction) {
-    document.getElementById(`container${actionVarName}`).children[2].style.display = "none";
-    const actionData = { _actionName: actionName, _townNum: townNum, _isTravelAction: isTravelAction };
-    const serialData = JSON.stringify(actionData);
-    event.dataTransfer.setData("actionData", serialData);
-    hideActionIcons();
+	var element = document.getElementById(`container${actionVarName}`);
+	element.children[2].style.display = "none";
+
+ 	const actionData = { _actionName: actionName, _townNum: townNum, _isTravelAction: isTravelAction };
+  	const serialData = JSON.stringify(actionData);
+
+	event.dataTransfer.setDragImage(element, event.pageX - element.offsetLeft, event.pageY - element.offsetTop);
+ 	event.dataTransfer.setData("actionData", serialData);
+ 	hideActionIcons();
 }
 
 
