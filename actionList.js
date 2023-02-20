@@ -4489,6 +4489,7 @@ Action.Spatiomancy = new Action("Spatiomancy", {
     },
     finish() {
         handleSkillExp(this.skills);
+	if (getSkillLevel("Spatiomancy") > 1500) return;
         view.requestUpdate("adjustManaCost", "Mana Geyser");
         view.requestUpdate("adjustManaCost", "Mana Well");
         adjustAll();
