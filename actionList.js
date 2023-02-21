@@ -1627,9 +1627,9 @@ Action.GatherHerbs = new Action("Gather Herbs", {
             case 1:
                 return towns[1][`checked${this.varName}`] >= 1;
             case 2:
-                return towns[1][`goods${this.varname}`] >= 200;
+                return towns[1][`good${this.varName}`] >= 200;
             case 3:
-                return towns[1][`goods${this.varname}`] >= 500;
+                return towns[1][`good${this.varName}`] >= 500;
         }
         return false;
     },
@@ -1667,6 +1667,8 @@ Action.Hunt = new Action("Hunt", {
                 return towns[1][`good${this.varName}`] >= 10;
             case 3:
                 return towns[1][`good${this.varName}`] >= 20;
+            case 4:
+                return towns[1][`good${this.varName}`] >= 50;
         }
         return false;
     },
@@ -4907,7 +4909,7 @@ Action.BuildHousing = new Action("Build Housing", {
         addResource("houses", 1);
         handleSkillExp(this.skills);
         unlockStory("houseBuilt");
-        if (resources.houses >= 10 && getCraftGuildRank().name == "godlike")
+        if (resources.houses >= 10 && getCraftGuildRank().name.startsWith("Godlike"))
             unlockStory("housesBuiltGodlike");
         if (resources.houses >= 50)
             unlockStory("built50Houses");
@@ -5168,7 +5170,7 @@ Action.GreatFeast = new MultipartAction("Great Feast", {
     storyReqs(storyNum) {
         switch(storyNum) {
             case 1: return storyReqs.feastAttempted;
-            case 2: return buffs.Feast >= 1;
+            case 2: return getBuffLevel("Feast") >= 1;
         }
     },
     stats: {
@@ -5190,6 +5192,7 @@ Action.GreatFeast = new MultipartAction("Great Feast", {
         return 1000000000 * (segment * 5 + 1);
     },
     tickProgress(offset) {
+        unlockStory("feastAttempted");
         return getSkillLevel("Practical") * (1 + getLevel(this.loopStats[(towns[4].GreatFeastLoopCounter + offset) % this.loopStats.length]) / 100);
     },
     loopsFinished() {
@@ -5431,8 +5434,8 @@ Action.DarkSacrifice = new Action("Dark Sacrifice", {
     storyReqs(storyNum) {
         switch(storyNum) {
             case 1: return getBuffLevel("Ritual") >= 1;
-            case 2: return getBuffLevel("Ritual") >= 100;
-            case 3: return getBuffLevel("Ritual") >= 1000;
+            case 2: return getSkillLevel("Commune") >= 100;
+            case 3: return getSkillLevel("Commune") >= 1000;
         }
     },
     stats: {
@@ -5564,6 +5567,9 @@ Action.PurchaseSupplies = new Action("Purchase Supplies", {
     },
     finish() {
         addResource("supplies", true);
+    },
+    story(completed) {
+        unlockStory("suppliesPurchased");
     },
 });
 
@@ -6026,6 +6032,7 @@ Action.OpenPortal = new Action("Open Portal", {
         return getSkillLevel("Restoration") >= 1000;
     },
     finish() {
+        unlockStory("portalOpened");
         portalUsed = true;
         handleSkillExp(this.skills);
         unlockTown(1);

@@ -64,7 +64,7 @@ function cheatSkill(skill, targetSkillLevel)
 {
     if (skill === "all" || skill === "All")
         for (const skill in skills)
-            skill[skill].exp = getExpOfLevel(targetSkillLevel);
+            skills[skill].exp = getExpOfLevel(targetSkillLevel);
     else skills[skill].exp = getExpOfLevel(targetSkillLevel);
     view.updateSkills();
 }

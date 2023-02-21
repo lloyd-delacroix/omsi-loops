@@ -746,7 +746,7 @@ function View() {
         else actionOptionsTown[townNum].style.display = "block";
         townInfos[townNum].style.display = "block";
         $("#TownSelect").val(townNum);
-        document.getElementById("townDesc").textContent = _txt(`towns>town${townNum}>desc`);
+        document.getElementById("townDesc").innerHTML = _txt(`towns>town${townNum}>desc`);
         townShowing = townNum;
     };
 
