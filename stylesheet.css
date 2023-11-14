@@ -721,7 +721,7 @@ input[type="number"] {
 /* dark theme */
 
 .t-dark {
-    filter: invert(1);
+    filter: invert(1) hue-rotate(180deg);
     background: #111;
     color: #222;
 }
