@@ -457,6 +457,8 @@ const options = {
     autosaveRate: 30,
 };
 
+let originalImportedSave = {};
+
 function setOption(option, value) {
     options[option] = value;
     if (option === "updateRate") recalcInterval(options.updateRate);
@@ -479,6 +481,7 @@ function clearSave() {
 }
 
 function loadDefaults() {
+    originalImportedSave = {};
     initializeStats();
     initializeSkills();
     initializeBuffs();
@@ -510,6 +513,7 @@ function load(inChallenge) {
     if (window.localStorage[saveName] && window.localStorage[saveName] !== "null") {
         closeTutorial();
         toLoad = JSON.parse(window.localStorage[saveName]);
+        originalImportedSave = {...toLoad};
     }
 
     console.log("Loading game from: " + saveName + " inChallenge: " + inChallenge);
@@ -532,7 +536,7 @@ function load(inChallenge) {
     if (challengeSave.challengeMode !== 0)
         saveName = challengeSaveName;
 
-    for (const property in toLoad.stats) {
+    for (const property in stats) {
         if (toLoad.stats.hasOwnProperty(property)) {
             stats[property].talent =  toLoad.stats[property].talent > 0 ? toLoad.stats[property].talent : 0;
             stats[property].soulstone = toLoad.stats[property].soulstone > 0 ? toLoad.stats[property].soulstone : 0;
@@ -540,13 +544,13 @@ function load(inChallenge) {
     }
 
 
-    for (const property in toLoad.skills) {
+    for (const property in skills) {
         if (toLoad.skills.hasOwnProperty(property)) {
             skills[property].exp = toLoad.skills[property].exp > 0 ? toLoad.skills[property].exp : toLoad.skills[property].exp;
         }
     }
 
-    for (const property in toLoad.buffs) {
+    for (const property in buffs) {
         if (toLoad.buffs.hasOwnProperty(property)) {
             // need the min for people with broken buff amts from pre 0.93
             buffs[property].amt = Math.min(toLoad.buffs[property].amt, buffHardCaps[property]);
@@ -572,7 +576,7 @@ function load(inChallenge) {
 
     if (toLoad.totalTalent === undefined) {
         let temptotalTalent = 0;
-        for (const property in toLoad.stats) {
+        for (const property in stats) {
             if (toLoad.stats.hasOwnProperty(property)) {
                 temptotalTalent += toLoad.stats[property].talent * 100;
             }
@@ -720,8 +724,10 @@ function load(inChallenge) {
         options.hotkeys = toLoad.hotkeys === undefined ? options.hotkeys : toLoad.hotkeys;
         options.updateRate = toLoad.updateRate === undefined ? options.updateRate : toLoad.updateRate;
     } else {
-        for (const option in toLoad.options) {
-            options[option] = toLoad.options[option];
+        for (const option in options) {
+            if (option in toLoad.options) {
+                options[option] = toLoad.options[option];
+            }
         }
     }
 
@@ -771,7 +777,11 @@ function load(inChallenge) {
     } else {
         unreadActionStories = toLoad.unreadActionStories;
         for (const name of unreadActionStories) {
-            showNotification(name);
+            try {
+                showNotification(name);
+            } catch (e) {
+                console.warn("Unexpected error while loading unreadActionStories, ignoring", name, e);
+            }
         }
     }
 
@@ -827,7 +837,8 @@ function load(inChallenge) {
 }
 
 function save() {
-    const toSave = {};
+    // start from the original save, to preserve unknown keyvalues
+    const toSave = {...originalImportedSave};
     toSave.curLoadout = curLoadout;
     toSave.dungeons = dungeons;
     toSave.trials = trials;
@@ -878,6 +889,17 @@ function save() {
     toSave.challengeSave = challengeSave;
     for (const challengeProgress in challengeSave)
         toSave.challengeSave[challengeProgress] = challengeSave[challengeProgress];
+
+    // merge keyvalue properties with unknowns
+    for (const prop of ['stats', 'skills', 'buffs', 'buffCaps', 'options', 'storyReqs']) {
+        toSave[prop] = {...originalImportedSave[prop], ...toSave[prop]};
+    }
+    // merge linear-array properties with unknowns
+    for (const prop of ['dungeons', 'trials']) {
+        if (originalImportedSave[prop]?.length > toSave[prop].length) {
+            toSave[prop] = toSave[prop].concat(originalImportedSave[prop]);
+        }
+    }
 
     window.localStorage[saveName] = JSON.stringify(toSave);
 }
